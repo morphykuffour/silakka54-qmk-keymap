@@ -1,1 +1,1 @@
-[keymap](./silakka54_keymap.svg)
+![keymap](./silakka54_keymap.svg)
