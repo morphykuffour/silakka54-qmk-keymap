@@ -1,6 +1,6 @@
 ## my silakka54 QMK keymap
 
-![](https://drive.proton.me/urls/3C8SK37V28#BHM9sAIs2hHE)
+![](./silakka54_keyboard.jpeg)
 
 ## Setup
 
