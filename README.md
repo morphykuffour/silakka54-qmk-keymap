@@ -19,7 +19,8 @@ mv ~/tmp/silakka54/firmware ~/git/vial-qmk/keyboards/silakka54
 Clone my keymap to silakka54
 
 ```bash
-git clone --recurse-submodules https://github.com/morphykuffour/silakka54-qmk-keymap.git ~/git/vial-qmk/keyboards/silakka54/keymaps/
+git clone --recurse-submodules https://github.com/morphykuffour/silakka54-qmk-keymap.git \
+~/git/vial-qmk/keyboards/silakka54/keymaps/
 ```
 
 Compile keymap after setting up qmk
