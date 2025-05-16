@@ -109,6 +109,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
     }
 
+    if (!process_smtd(keycode, record)) {
+        return false;
+    }
+
     switch (keycode) {
         case CKC_COPY:
             if (record->event.pressed) {
@@ -243,7 +247,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 void on_smtd_action(uint16_t keycode, smtd_action action, uint8_t tap_count) {
     switch (keycode) {
-        SMTD_LT(CKC_R, KC_GRV, 2) // SYM layer
-        SMTD_LT(CKC_I, KC_TAB, 2) // SYM layer
+        SMTD_LT(CKC_R, KC_R, 2) // SYM layer
+        SMTD_LT(CKC_I, KC_I, 2) // SYM layer
     }
 }
