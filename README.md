@@ -1,3 +1,7 @@
+## my silakka54 QMK keymap
+
+![](https://drive.proton.me/urls/3C8SK37V28#BHM9sAIs2hHE)
+
 ## Setup
 
 Clone vial-qmk
@@ -23,5 +27,5 @@ Compile keymap after setting up qmk
 qmk compile -c -kb silakka54 -km silakka54-qmk-keymap
 ```
 
-# my keymap
+## My keymap
 ![keymap](./silakka54_keymap.svg)
