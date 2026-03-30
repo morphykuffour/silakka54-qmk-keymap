@@ -7,24 +7,40 @@
 Clone vial-qmk
 
 ```bash
-git clone https://github.com/vial-kb/vial-qmk.git ~/git
+git clone https://github.com/vial-kb/vial-qmk.git ~/git/vial-qmk
 ```
-Clone silakka54 repo and move the firmware to vial-qmk
+
+Clone the silakka54 keyboard firmware into vial-qmk
 
 ```bash
-git clone https://github.com/Squalius-cephalus/silakka54.git ~/tmp/
+git clone https://github.com/Squalius-cephalus/silakka54.git ~/tmp/silakka54
 mv ~/tmp/silakka54/firmware ~/git/vial-qmk/keyboards/silakka54
 ```
 
-Clone my keymap to silakka54
+Clone this keymap into the silakka54 keymaps directory
 
 ```bash
 git clone --recurse-submodules https://github.com/morphykuffour/silakka54-qmk-keymap.git \
-~/git/vial-qmk/keyboards/silakka54/keymaps/
+  ~/git/vial-qmk/keyboards/silakka54/keymaps/silakka54-qmk-keymap
 ```
 
-Compile keymap after setting up qmk
+## Compile
+
+### With Nix (recommended)
+
 ```bash
+cd ~/git/vial-qmk/keyboards/silakka54/keymaps/silakka54-qmk-keymap
+nix develop
+cd ~/git/vial-qmk
+qmk compile -c -kb silakka54 -km silakka54-qmk-keymap
+```
+
+### Without Nix
+
+Install the QMK toolchain and arm-none-eabi-gcc, then from the vial-qmk root:
+
+```bash
+cd ~/git/vial-qmk
 qmk compile -c -kb silakka54 -km silakka54-qmk-keymap
 ```
 
