@@ -265,6 +265,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+#ifdef RAW_ENABLE
+#include "raw_hid.h"
+void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
+    if (data[0] == 0x00 && data[1] <= 3) {
+        set_single_default_layer(data[1]);
+        data[2] = 0xAA;
+        raw_hid_send(data, length);
+    }
+}
+#endif
+
 void on_smtd_action(uint16_t keycode, smtd_action action, uint8_t tap_count) {
     switch (keycode) {
         SMTD_LT(CKC_R, KC_R, 2, 1) // SYM layer
