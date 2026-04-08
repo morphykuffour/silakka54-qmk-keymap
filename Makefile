@@ -1,5 +1,5 @@
 KEYBOARD := silakka54
-KEYMAP   := silakka54-qmk-keymap
+KEYMAP   := keymap
 QMK_HOME := $(shell cd $(CURDIR)/../../.. && pwd)
 
 .PHONY: build clean

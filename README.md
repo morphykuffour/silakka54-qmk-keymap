@@ -13,8 +13,8 @@ git clone https://github.com/vial-kb/vial-qmk.git ~/git/vial-qmk
 Clone this keymap (with submodules):
 
 ```bash
-git clone --recurse-submodules https://github.com/morphykuffour/silakka54-qmk-keymap.git \
-  ~/git/vial-qmk/keyboards/silakka54/keymaps/silakka54-qmk-keymap
+git clone --recurse-submodules https://github.com/morphykuffour/keymap.git \
+  ~/git/vial-qmk/keyboards/silakka54/keymaps/keymap
 ```
 
 ## Build
@@ -26,16 +26,16 @@ make build
 Pulls the toolchain via `nix develop` and runs:
 
 ```bash
-qmk compile -c -kb silakka54 -km silakka54-qmk-keymap
+qmk compile -c -kb silakka54 -km keymap
 ```
 
-Output: `.build/silakka54_silakka54-qmk-keymap.uf2`
+Output: `.build/silakka54_keymap.uf2`
 
 ### Interactive shell
 
 ```bash
 nix develop   # sets QMK_HOME, syncs sm_td submodule
-qmk compile -c -kb silakka54 -km silakka54-qmk-keymap
+qmk compile -c -kb silakka54 -km keymap
 ```
 
 ### Clean
