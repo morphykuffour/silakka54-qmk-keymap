@@ -17,6 +17,15 @@
               dfu-util
               git
             ];
+            shellHook = ''
+              # Sync sm_td submodule
+              git submodule update --init --recursive
+
+              # This keymap repo lives at keyboards/<kb>/keymaps/ inside vial-qmk
+              export QMK_HOME=$(cd "$PWD/../../.." && pwd)
+              echo "QMK_HOME=$QMK_HOME"
+              echo "Run 'make build' or: qmk compile -c -kb silakka54 -km silakka54-qmk-keymap"
+            '';
           };
         });
     };

@@ -1,48 +1,54 @@
-## my silakka54 QMK keymap
+## silakka54 QMK keymap
 
 ![](./silakka54_keyboard.jpeg)
 
 ## Setup
 
-Clone vial-qmk
+Clone [vial-qmk](https://github.com/vial-kb/vial-qmk):
 
 ```bash
 git clone https://github.com/vial-kb/vial-qmk.git ~/git/vial-qmk
 ```
 
-Clone the silakka54 keyboard firmware into vial-qmk
-
-```bash
-git clone https://github.com/Squalius-cephalus/silakka54.git ~/tmp/silakka54
-mv ~/tmp/silakka54/firmware ~/git/vial-qmk/keyboards/silakka54
-```
-
-Clone this keymap into the silakka54 keymaps directory
+Clone this keymap into the silakka54 keymaps directory (with submodules):
 
 ```bash
 git clone --recurse-submodules https://github.com/morphykuffour/silakka54-qmk-keymap.git \
   ~/git/vial-qmk/keyboards/silakka54/keymaps/silakka54-qmk-keymap
 ```
 
-## Compile
+The `silakka54-qmk-keymap/` subdirectory contains symlinks back to the keymap source files
+(`keymap.c`, `config.h`, `rules.mk`, `vial.json`, `sm_td`), so QMK finds them at the right path.
 
-### With Nix (recommended)
+## Build
+
+From the keymap repo root (`keyboards/silakka54/keymaps/`):
 
 ```bash
-cd ~/git/vial-qmk/keyboards/silakka54/keymaps/silakka54-qmk-keymap
-nix develop
-cd ~/git/vial-qmk
+make build
+```
+
+This calls `nix develop` to pull the toolchain and runs:
+
+```bash
 qmk compile -c -kb silakka54 -km silakka54-qmk-keymap
 ```
 
-### Without Nix
+Output: `.build/silakka54_silakka54-qmk-keymap.uf2`
 
-Install the QMK toolchain and arm-none-eabi-gcc, then from the vial-qmk root:
+### Interactive shell
 
 ```bash
-cd ~/git/vial-qmk
+nix develop   # sets QMK_HOME and syncs sm_td submodule automatically
 qmk compile -c -kb silakka54 -km silakka54-qmk-keymap
 ```
 
-## My keymap
+### Clean
+
+```bash
+make clean
+```
+
+## Keymap
+
 ![keymap](./silakka54_keymap.svg)
