@@ -16,6 +16,7 @@
               gcc-arm-embedded
               dfu-util
               git
+              keymap-drawer
             ];
             shellHook = ''
               # Sync sm_td submodule
