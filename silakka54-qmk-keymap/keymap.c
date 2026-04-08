@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
-
+#include "raw_hid.h"
 
 enum custom_keycodes {
     CKC_COPY = SAFE_RANGE,
@@ -10,6 +10,8 @@ enum custom_keycodes {
     CKC_PASTE,
     CKC_SCOPE,
     CKC_CUT,
+    FORCE_QWERTY,
+    FORCE_COLEMAK,
     JIGGLE,
     SELLINE,
     SELALL,
@@ -57,11 +59,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             KC_LGUI, MO(1), KC_BSPC,              CKC_SPACE,  QK_REP,  KC_RALT
     ),
     [1] = LAYOUT(
-        KC_GRV,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                              KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
-        KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                            KC_PGUP, KC_PGDN, KC_HOME, KC_END,  KC_DEL,  KC_F12,
-        KC_TRNS,  SELALL,  SELLINE, KC_TRNS, KC_TRNS, KC_TRNS,                            KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_LBRC, KC_RBRC,
-        KC_TRNS,  KC_TRNS, CKC_CUT, CKC_COPY,KC_TRNS, CKC_PASTE,                          KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-                                            KC_TRNS, KC_TRNS, KC_TRNS,           KC_TRNS,  MO(3),  KC_TRNS
+        KC_GRV,       KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                              KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
+        KC_TRNS,      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                            KC_PGUP, KC_PGDN, KC_HOME, KC_END,  KC_DEL,  KC_F12,
+        KC_TRNS,      SELALL,  SELLINE, KC_TRNS, KC_TRNS, KC_TRNS,                            KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_LBRC, KC_RBRC,
+        KC_TRNS,      KC_TRNS, CKC_CUT, CKC_COPY,KC_TRNS, CKC_PASTE,                          KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+                                                KC_TRNS, KC_TRNS, KC_TRNS,           KC_TRNS,  MO(3),  FORCE_QWERTY
     ),
     [2] = LAYOUT(
         KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                            KC_TRNS,  KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
@@ -75,7 +77,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TRNS,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                               KC_Y,     KC_U,    KC_I,    KC_O,    KC_P,    KC_TRNS,
         KC_TRNS,  KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                               KC_H,     KC_J,    KC_K,    KC_L,    KC_SCLN, KC_TRNS,
         KC_TRNS,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                               KC_N,     KC_M,    KC_COMM, KC_DOT,  KC_SLSH, QK_BOOT,
-                                            KC_TRNS, KC_TRNS, KC_TRNS,           KC_TRNS,  KC_TRNS,  KC_TRNS
+                                        FORCE_COLEMAK, KC_TRNS, KC_TRNS,           KC_TRNS,  KC_TRNS,  KC_TRNS
     )
 };
 
@@ -116,6 +118,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     switch (keycode) {
+        case FORCE_QWERTY:
+            if (record->event.pressed) {
+                set_single_default_layer(3);
+            }
+            return false;
+        case FORCE_COLEMAK:
+            if (record->event.pressed) {
+                set_single_default_layer(0);
+            }
+            return false;
+
         case CKC_COPY:
             if (record->event.pressed) {
                 #if defined(OS_DETECTION_ENABLE)
@@ -265,16 +278,37 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-#ifdef RAW_ENABLE
-#include "raw_hid.h"
+// Raw HID handler for rawtalk layer switching.
+// Protocol (cmd[0]=report-id stripped by HID layer):
+//   data[0]=0x00, data[1]=layer  → switch default layer, ack with data[2]=0xAA
+//   data[0]=0x40                 → return current highest layer in data[0]
 void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
-    if (data[0] == 0x00 && data[1] <= 3) {
-        set_single_default_layer(data[1]);
-        data[2] = 0xAA;
-        raw_hid_send(data, length);
+    uint8_t *command_id = &(data[0]);
+
+    switch (*command_id) {
+        case 0x40:  // get current layer
+            data[0] = (uint8_t)get_highest_layer(default_layer_state);
+            break;
+
+        case 0x00: {  // layer switch
+            uint8_t target_layer = data[1];
+            if (target_layer <= 3) {
+                set_single_default_layer(target_layer);
+                data[0] = 0x00;
+                data[1] = target_layer;
+                data[2] = 0xAA;  // ack
+                raw_hid_send(data, length);
+            } else {
+                *command_id = 0xFF;
+            }
+            break;
+        }
+
+        default:
+            *command_id = 0xFF;  // unhandled — let VIA/VIAL process it
+            break;
     }
 }
-#endif
 
 void on_smtd_action(uint16_t keycode, smtd_action action, uint8_t tap_count) {
     switch (keycode) {
