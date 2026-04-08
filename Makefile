@@ -1,8 +1,8 @@
 KEYBOARD := silakka54
 KEYMAP   := keymap
 QMK_HOME := $(shell cd $(CURDIR)/../../.. && pwd)
-SVG      := silakka54_keymap.svg
-YAML     := silakka54_keymap.yaml
+SVG      := assets/silakka54_keymap.svg
+YAML     := assets/silakka54_keymap.yaml
 
 .PHONY: build svg clean
 
@@ -21,5 +21,4 @@ clean:
 	rm -rf $(QMK_HOME)/.build/obj_$(KEYBOARD)_$(KEYMAP) \
 	       $(QMK_HOME)/.build/$(KEYBOARD)_$(KEYMAP).elf \
 	       $(QMK_HOME)/.build/$(KEYBOARD)_$(KEYMAP).uf2 \
-	       $(QMK_HOME)/.build/$(KEYBOARD)_$(KEYMAP).map \
-	       $(YAML)
+	       $(QMK_HOME)/.build/$(KEYBOARD)_$(KEYMAP).map

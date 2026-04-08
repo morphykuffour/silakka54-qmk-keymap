@@ -1,6 +1,6 @@
 ## silakka54 QMK keymap
 
-![](./silakka54_keyboard.jpeg)
+![](./assets/silakka54_keyboard.jpeg)
 
 ## Setup
 
@@ -137,4 +137,7 @@ vim.api.nvim_create_autocmd("VimLeave", {
 
 ## Keymap
 
-![keymap](./silakka54_keymap.svg)
+> Auto-updated by CI on every push that changes `keymap/keymap.c`.
+> Regenerate locally with `make svg`.
+
+![keymap](./assets/silakka54_keymap.svg)

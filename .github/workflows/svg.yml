@@ -1,0 +1,50 @@
+name: Update keymap SVG
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'keymap/keymap.c'
+      - 'keymap/config.h'
+      - 'keymap/rules.mk'
+
+jobs:
+  svg:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install tools
+        run: pip install qmk keymap-drawer
+
+      - name: Clone vial-qmk (shallow)
+        run: git clone --depth 1 https://github.com/vial-kb/vial-qmk.git ~/vial-qmk
+
+      - name: Link keymap into vial-qmk tree
+        run: |
+          mkdir -p ~/vial-qmk/keyboards/silakka54/keymaps
+          ln -s "$GITHUB_WORKSPACE" ~/vial-qmk/keyboards/silakka54/keymaps/keymap
+
+      - name: Generate SVG
+        run: |
+          export QMK_HOME=~/vial-qmk
+          qmk c2json --no-cpp -kb silakka54 -km keymap keymap/keymap.c \
+            | keymap parse -c 10 -q - > assets/silakka54_keymap.yaml
+          keymap draw assets/silakka54_keymap.yaml > assets/silakka54_keymap.svg
+
+      - name: Commit updated SVG
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/silakka54_keymap.svg assets/silakka54_keymap.yaml
+          git diff --staged --quiet || \
+            git commit -m "ci: update keymap SVG [skip ci]" && git push
