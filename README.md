@@ -87,31 +87,51 @@ cargo build --release
 Add to `init.lua`:
 
 ```lua
-local socket_path = "/tmp/rawtalk.sock"
-local uv = vim.loop
-local client, connected = nil, false
+local socket_path       = "/tmp/rawtalk.sock"
+local uv                = vim.uv or vim.loop
+local rawtalk_client    = nil
+local rawtalk_connected = false
 
-local function connect()
-    if connected then return true end
-    client = uv.new_pipe()
-    client:connect(socket_path, function(err)
-        connected = not err
+local function rawtalk_connect()
+    if rawtalk_connected then return true end
+    rawtalk_client = uv.new_pipe(false)
+    rawtalk_client:connect(socket_path, function(err)
+        rawtalk_connected = not err
     end)
-    vim.wait(50, function() return connected end)
-    return connected
+    vim.wait(50, function() return rawtalk_connected end, 10)
+    return rawtalk_connected
 end
 
-local function send_mode(mode)
-    if not connected then connect() end
-    if connected then
-        pcall(function() client:write(mode .. "\n") end)
+local function rawtalk_send_mode(mode)
+    if not rawtalk_connected then rawtalk_connect() end
+    if rawtalk_connected and rawtalk_client then
+        pcall(function() rawtalk_client:write(mode .. "\n") end)
     end
 end
 
+local rawtalk_group = vim.api.nvim_create_augroup("Rawtalk", { clear = true })
+
 vim.api.nvim_create_autocmd("ModeChanged", {
-    group = vim.api.nvim_create_augroup("Rawtalk", { clear = true }),
-    pattern = "*",
-    callback = function() send_mode(vim.fn.mode()) end,
+    group    = rawtalk_group,
+    pattern  = "*",
+    callback = function() rawtalk_send_mode(vim.fn.mode()) end,
+})
+
+vim.api.nvim_create_autocmd("VimEnter", {
+    group    = rawtalk_group,
+    callback = function()
+        vim.defer_fn(function()
+            rawtalk_connect()
+            rawtalk_send_mode(vim.fn.mode())
+        end, 100)
+    end,
+})
+
+vim.api.nvim_create_autocmd("VimLeave", {
+    group    = rawtalk_group,
+    callback = function()
+        if rawtalk_client then pcall(function() rawtalk_client:close() end) end
+    end,
 })
 ```
 
